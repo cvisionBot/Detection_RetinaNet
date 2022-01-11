@@ -63,10 +63,9 @@ def train(cfg, ckpt=None):
 
     model = RetinaNet(backbone, fpn, cls_sub, reg_sub,
                       cfg['classes'], cfg['in_channels'])
-
     model_module = Detector(
         model, cfg, epoch_length=data_module.train_dataloader().__len__())
-
+    
     callbacks = [
         LearningRateMonitor(logging_interval='step'),
         ModelCheckpoint(monitor='val_loss', save_last=True,
@@ -81,7 +80,7 @@ def train(cfg, ckpt=None):
                                  make_model_name(cfg)),
         gpus=cfg['gpus'],
         accelerator='ddp' if platform.system() != 'Windows' else None,
-        plugins=DDPPlugin(find_unused_parameters=True) if platform.system() != 'Windows' else None,
+        plugins=DDPPlugin() if platform.system() != 'Windows' else None,
         callbacks=callbacks,
         resume_from_checkpoint=ckpt,
         **cfg['trainer_options'])

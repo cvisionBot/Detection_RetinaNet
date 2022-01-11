@@ -17,18 +17,13 @@ class Detector(pl.LightningModule):
         self.transformer = Transformer()
         self.loss_fn = MultiBoxLoss(cfg)
         self.mAP = DetectionMAP(cfg['classes'])
-        if cfg['optimizer'] == 'sam':
-            self.automatic_optimization = False
 
     def forward(self, x):
         cls_pred, reg_pred = self.model(x)
         return cls_pred, reg_pred
 
     def training_step(self, batch, batch_idx):
-        if self.hparams.cfg['optimizer'] == 'sam':
-            loss, cls_loss, reg_loss = self.sam_opt_training_step(batch)
-        else:
-            loss, cls_loss, reg_loss = self.common_opt_training_step(batch)
+        loss, cls_loss, reg_loss = self.common_opt_training_step(batch)
 
         self.log('train_loss', loss, prog_bar=True,
                  logger=True, on_step=True, on_epoch=True)
@@ -125,19 +120,19 @@ class Detector(pl.LightningModule):
                     'interval': 'step'}
                 }
 
-    @staticmethod
-    def disable_running_stats(model):
-        def _disable(module):
-            if isinstance(module, nn.BatchNorm2d):
-                module.backup_momentum = module.momentum
-                module.momentum = 0
+    # @staticmethod
+    # def disable_running_stats(model):
+    #     def _disable(module):
+    #         if isinstance(module, nn.BatchNorm2d):
+    #             module.backup_momentum = module.momentum
+    #             module.momentum = 0
 
-        model.apply(_disable)
+    #     model.apply(_disable)
 
-    @staticmethod
-    def enable_running_stats(model):
-        def _enable(module):
-            if isinstance(module, nn.BatchNorm2d) and hasattr(module, "backup_momentum"):
-                module.momentum = module.backup_momentum
+    # @staticmethod
+    # def enable_running_stats(model):
+    #     def _enable(module):
+    #         if isinstance(module, nn.BatchNorm2d) and hasattr(module, "backup_momentum"):
+    #             module.momentum = module.backup_momentum
 
-        model.apply(_enable)
+    #     model.apply(_enable)

@@ -164,8 +164,8 @@ class RetinaNet(nn.Module):
 
         self.backbone = Backbone(in_channels)
 
-        # fpn_sizes = self.backbone.stage_channels[2:]
-        fpn_sizes = [152, 368, 736]
+        fpn_sizes = self.backbone.stage_channels[2:]
+        # fpn_sizes = [152, 368, 736]
         self.fpn = FPN(fpn_sizes)
 
         feature_size = self.fpn.feature_size
@@ -176,15 +176,15 @@ class RetinaNet(nn.Module):
 
     def forward(self, x):
         # backbone forward
-        x = self.backbone.stem(x)
-        s1 = self.backbone.layer1(x)
+        stem = self.backbone.Stem(x)
+        s1 = self.backbone.layer1(stem)
         s2 = self.backbone.layer2(s1)
         s3 = self.backbone.layer3(s2)
         s4 = self.backbone.layer4(s3)
-        s5 = self.backbone.layer5(s4)
+        # s5 = self.backbone.layer5(s4)
 
         # fpn forward
-        features = self.fpn(s3, s4, s5)
+        features = self.fpn(s2, s3, s4)
 
         # prediction
         classifications = torch.cat(
