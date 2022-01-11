@@ -1,0 +1,12 @@
+albumentations==1.0.3
+Cython
+onnx==1.10.1
+onnxruntime==1.8.1
+opencv-python
+pytorch-lightning==1.4.9
+scikit-image==0.17.2
+torch==1.9.1
+torch-summary==1.4.5
+torchmetrics==0.5.1
+torchvision==0.10.1
+tqdm
