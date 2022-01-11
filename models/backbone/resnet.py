@@ -41,7 +41,7 @@ class _ResNet18(nn.Module):
     def __init__(self, in_channels, classes):
         super(_ResNet18, self).__init__()
         self.Stem = ModelStem(in_channels=in_channels, out_channels=64)
-        self.stage_channels = []
+        self.stage_channels = [64, 64, 128, 256, 512]
         # configs : in_channels, kernel_size, out_channels, stride, iter_cnt
         conv2_x = [64, 3, 64, 2, 2]
         conv3_x = [128, 3, 128, 2, 2]
@@ -60,15 +60,15 @@ class _ResNet18(nn.Module):
         
     def forward(self, input):
         stem= self.Stem(input)
-        # print('stem shape : ', stem.shape)
+        print('stem shape : ', stem.shape)
         s1 = self.layer1(stem)
-        # print('stage 1 shape : ', s1.shape)
+        print('stage 1 shape : ', s1.shape)
         s2 = self.layer2(s1)
-        # print('stage 2 shape : ', s2.shape)
+        print('stage 2 shape : ', s2.shape)
         s3 = self.layer3(s2)
-        # print('stage 3 shape : ', s3.shape)
+        print('stage 3 shape : ', s3.shape)
         s4 = self.layer4(s3)
-        # print('stage 4 shape : ', s4.shape)
+        print('stage 4 shape : ', s4.shape)
         pred = self.classification(s4)
         b, c, _, _ = pred.size()
         pred = pred.view(b, c)
