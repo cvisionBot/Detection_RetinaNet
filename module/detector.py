@@ -1,6 +1,5 @@
 import pytorch_lightning as pl
 from models.loss.multibox_loss import MultiBoxLoss
-from module.sam_optimizer import SAM
 from utils.mAP_evaluate import DetectionMAP
 from utils.module_select import get_optimizer
 

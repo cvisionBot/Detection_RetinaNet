@@ -2,7 +2,6 @@ from models.detector.retinanet import ClassificationModel, RegressionModel
 from models.detector.fpn import FeaturesPyramidNetwork
 from torch import optim
 from models.backbone.resnet import ResNet
-from module.sam_optimizer import SAM
 
 
 def get_model(model_name):

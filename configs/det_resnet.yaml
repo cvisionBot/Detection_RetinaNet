@@ -1,19 +1,19 @@
 model: 'ResNet_RetinaNet'
-dataset_name: 'Pascal'
-classes: 20
+dataset_name: 'Test'
+classes: 1
 in_channels: 3
-train_list: '/mnt/voc_train/train_list.txt'
-val_list: '/mnt/voc_train/val_list.txt'
-names: '/dataset/detection/names/pascal_voc.txt'
+train_list: '/mnt/test/train_list.txt'
+val_list: '/mnt/test/val_list.txt'
+names: '/dataset/detection/names/test.txt'
 input_size: 320
 
 workers: 4
 epochs: 500
-batch_size: 10
+batch_size: 8
 
 save_freq: 1
 save_dir: './saved'
-gpus : 0
+gpus : -1
 
 # model Define
 backbone: 'ResNet'
