@@ -1,10 +1,10 @@
 model: 'ResNet_RetinaNet'
 dataset_name: 'Test'
-classes: 1
+classes: 20
 in_channels: 3
-train_list: '/mnt/test/train_list.txt'
-val_list: '/mnt/test/val_list.txt'
-names: '/dataset/detection/names/test.txt'
+train_list: '/mnt/voc_train/train_list.txt'
+val_list: '/mnt/voc_train/val_list.txt'
+names: '/dataset/detection/names/pascal_voc.txt'
 input_size: 320
 
 workers: 4
