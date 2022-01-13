@@ -1,22 +1,35 @@
-import torch 
-import argparse 
-from module.classifier import Classifier 
-from utils.module_select import get_model 
-from utils.yaml_helper import get_train_configs 
+import torch
+import argparse
+from models.detector.retinanet import RetinaNet
+from module.detector import Detector
+from utils.module_select import (get_cls_subnet, get_fpn, get_model,
+                                 get_reg_subnet)
+from utils.yaml_helper import get_train_configs
+
+
  
  
 def main(cfg): 
-    model = get_model(cfg['model'])(in_channels=3, classes=cfg['classes']) 
-    model_module = Classifier.load_from_checkpoint( 
-        '/ssd2/lyj/resnet50_cls_ckpt/ResNet50_150_Epoch.ckpt', model=model 
+    backbone = get_model(cfg['backbone'])
+    fpn = get_fpn(cfg['fpn'])
+    cls_sub = get_cls_subnet(cfg['cls_subnet'])
+    reg_sub = get_reg_subnet(cfg['reg_subnet'])
+    model = RetinaNet(backbone, fpn, cls_sub, reg_sub, cfg['classes'], cfg['in_channels'])
+    if torch.cuda.is_available:
+        model = model.to('cuda')
+ 
+    model_module = Detector.load_from_checkpoint( 
+        '/home/insig/Detection_RetinaNet/saved/ResNet_RetinaNet_Test/version_0/checkpoints/last.ckpt', model=model 
     ) 
     model_module.eval() 
  
     # Convert PyTorch To ONNX 
-    dumTensor = torch.rand(1, 3, 64, 64) 
+    dumTensor = torch.rand(1, cfg['in_channels'], cfg['input_size'], cfg['input_size'])
+    if torch.cuda.is_available:
+        dumTensor = dumTensor.to('cuda') 
     torch.onnx.export(model_module.model, dumTensor, cfg['model']+'.onnx', 
                       export_params=True, opset_version=9, do_constant_folding=True,
-                      input_names=['input'], output_names=['pred'])
+                      input_names=['input'], output_names=['classifications', 'regressions'])
  
 if __name__ == '__main__': 
     parser = argparse.ArgumentParser() 

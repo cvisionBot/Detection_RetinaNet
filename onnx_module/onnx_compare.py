@@ -5,20 +5,26 @@ import torch
 import argparse 
 import numpy as np 
  
-from module.classifier import Classifier 
-from utils.module_select import get_model 
-from utils.yaml_helper import get_train_configs 
- 
+from models.detector.retinanet import RetinaNet
+from module.detector import Detector
+from utils.module_select import (get_cls_subnet, get_fpn, get_model,
+                                 get_reg_subnet)
+from utils.yaml_helper import get_train_configs
  
 def load_onnx_model(onnx_path): 
     return onnxruntime.InferenceSession(onnx_path) 
  
 def load_pytorch_model(cfg): 
-    model = get_model(cfg['model'])(in_channels=3, classes=cfg['classes']) 
-    if torch.cuda.is_available: 
-        model = model.to('cpu') 
-    model_module = Classifier.load_from_checkpoint( 
-        '/ssd2/lyj/resnet50_cls_ckpt/ResNet50_150_Epoch.ckpt', model=model 
+    backbone = get_model(cfg['backbone'])
+    fpn = get_fpn(cfg['fpn'])
+    cls_sub = get_cls_subnet(cfg['cls_subnet'])
+    reg_sub = get_reg_subnet(cfg['reg_subnet'])
+    model = RetinaNet(backbone, fpn, cls_sub, reg_sub, cfg['classes'], cfg['in_channels'])
+    if torch.cuda.is_available:
+        model = model.to('cpu')
+ 
+    model_module = Detector.load_from_checkpoint( 
+        '/home/insig/Detection_RetinaNet/saved/ResNet_RetinaNet_Test/version_0/checkpoints/last.ckpt', model=model 
     ) 
     model_module.eval() 
     return model_module.model 
@@ -62,7 +68,7 @@ def net_forward_pytorch(pytorch_model, input_tensor):
     input_tensor = torch.Tensor(input_tensor) 
     if torch.cuda.is_available: 
         input_tensor = input_tensor.to("cpu") 
-    result =[t.detach().numpy() for t in pytorch_model(input_tensor)["pred"]] 
+    result =[t.detach().numpy() for t in pytorch_model(input_tensor)] 
     return result 
  
 def check_results(net_results): 

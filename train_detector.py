@@ -17,10 +17,6 @@ from module.detector import Detector
 from models.detector.retinanet import RetinaNet
 import platform
 
-import os
-os.environ['CUDA_LAUNCH_BLOCKING'] = "1"
-os.environ['CUDA_VISIBLE_DEVICES'] = "0"
-
 def add_experimental_callbacks(cfg, train_callbacks):
     options = {
         'SWA': StochasticWeightAveraging(),
