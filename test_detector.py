@@ -14,6 +14,7 @@ from utils.module_select import (get_cls_subnet, get_fpn, get_model,
 from utils.utility import preprocess_input
 from utils.yaml_helper import get_train_configs
 
+from torchsummary import summary
 
 def parse_names(names_file):
     names_file = os.getcwd()+names_file
@@ -40,6 +41,19 @@ def visualize_detection(image, box, class_name, conf, color):
     return image
 
 
+def bin_load(bin_path):
+    num_cls_pred = np.fromfile("./inference/dump/classification_out.bin", dtype='float32')
+    num_reg_pred = np.fromfile("./inference/dump/regression_out.bin", dtype='float32')
+    cls_pred = torch.Tensor(num_cls_pred)
+    reg_pred = torch.Tensor(num_reg_pred)
+    if torch.cuda.is_available:
+        cls_pred = cls_pred.to('cuda')
+        reg_pred = reg_pred.to('cuda')
+    cls_pred = torch.reshape(cls_pred, (1, 20, -1))
+    reg_pred = torch.reshape(reg_pred, (1, 4, -1))
+    return cls_pred, reg_pred
+    
+
 def main(cfg, image_name, save):
     names = parse_names(cfg['names'])
     colors = gen_random_colors(names)
@@ -63,8 +77,10 @@ def main(cfg, image_name, save):
         model = model.to('cuda')
 
     model_module = Detector.load_from_checkpoint(
-        'E:/projects/det_lab/saved/Frost_RetinaNet_VOC/version_0/checkpoints/last.ckpt',
+        '/home/insig/Detection_RetinaNet/saved/ResNet_RetinaNet_Test/version_0/checkpoints/last.ckpt',
         model=model)
+    model_module.eval() 
+    # summary(model_module, input_size=(cfg['in_channels'], cfg['input_size'], cfg['input_size']))
 
     transformer = Transformer()
 
@@ -76,7 +92,7 @@ def main(cfg, image_name, save):
     confidences = confidences[0]
     cls_idxes = cls_idxes[0]
     boxes = boxes[0]
-    idxs = np.where(confidences.cpu() > 0.5)
+    idxs = np.where(confidences.cpu() > 0.3)
 
     for i in range(idxs[0].shape[0]):
         box = boxes[idxs[0][i]]
@@ -84,16 +100,15 @@ def main(cfg, image_name, save):
         y1 = int(box[1])
         x2 = int(box[2])
         y2 = int(box[3])
+
         name = names[int(cls_idxes[idxs[0][i]])]
         conf = confidences[idxs[0][i]]
         color = colors[int(cls_idxes[idxs[0][i]])]
-
         image = visualize_detection(image, (x1, y1, x2, y2), name, conf, color)
 
-    cv2.imshow('test', image)
-    cv2.waitKey(0)
-    if save:
-        cv2.imwrite('./saved/inference.png', image)
+    # cv2.imshow('test', image)
+    # cv2.waitKey(0)
+    cv2.imwrite('./inference/result/inference.png', image)
 
 
 if __name__ == '__main__':
@@ -105,4 +120,4 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     cfg = get_train_configs(args.cfg)
-    main(cfg, 'E:\/VOCdevkit/VOC2007/JPEGImages/000001.jpg', args.save)
+    main(cfg, './inference/sample/(1).jpg', args.save)

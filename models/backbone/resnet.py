@@ -60,17 +60,12 @@ class _ResNet18(nn.Module):
         
     def forward(self, input):
         stem= self.Stem(input)
-        print('stem shape : ', stem.shape)
         s1 = self.layer1(stem)
-        print('stage 1 shape : ', s1.shape)
         s2 = self.layer2(s1)
-        print('stage 2 shape : ', s2.shape)
         s3 = self.layer3(s2)
-        print('stage 3 shape : ', s3.shape)
         s4 = self.layer4(s3)
-        print('stage 4 shape : ', s4.shape)
         pred = self.classification(s4)
-        b, c, _, _ = pred.size()
+        b, c, h, w = pred.size()
         pred = pred.view(b, c)
         stages = [stem, s1, s2, s3, s4]
         return {'stages' : stages, 'pred':pred}
