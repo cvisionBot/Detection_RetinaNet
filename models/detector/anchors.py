@@ -1,6 +1,6 @@
 import torch
 from torch import nn
-
+import numpy as np
 
 class Anchors(nn.Module):
     def __init__(self, pyramid_levels=None, sizes=None, ratios=None,
@@ -40,7 +40,7 @@ class Anchors(nn.Module):
             self.strides = [2**x for x in self.pyramid_levels]
 
         self.num_anchors = len(self.ratios) * len(self.scales)
-
+        
     def forward(self, image):
         """Anchor Generation
 
@@ -92,9 +92,11 @@ class Anchors(nn.Module):
         all_anchors = all_anchors.reshape((K*A, 4))
         return all_anchors
 
-
 if __name__ == '__main__':
     a = Anchors()
     anchors = a(torch.zeros((1, 3, 320, 320)))
     print(anchors)
     print(anchors.shape)
+    anchors = anchors / 320.0
+    np.savetxt("anchors.txt", anchors, fmt='%.5f', delimiter=',',newline=',\n', header='anchors')
+ 

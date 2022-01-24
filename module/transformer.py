@@ -2,7 +2,7 @@ from torch import nn
 import torch
 from torchvision.ops import nms
 from models.detector.anchors import Anchors
-
+import numpy as np
 
 class Transformer(nn.Module):
     """Transform detector's logtis to bbox information
