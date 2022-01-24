@@ -11,6 +11,8 @@ PyTorch 기반 Network에 대해 RetinaNet 방식으로 Object Detection을 진�
 - mAP Calculation
 - Cosine Annealing Warmup Restart L.R. Scheduler
 
+## 프로젝트 구조
+```
 Detection_Retinanet
 ├─ .gitignore
 ├─ __README.md
@@ -25,6 +27,8 @@ Detection_Retinanet
 ├─ onnx_module # onnx 변형을 위한 모듈
 ├─ train_detector.py # Detector 학습 스크립트
 └─ utils
+
+```
 
 ## Requirements
 `requirements.txt` 파일을 참고하여 Anaconda 환경 설정 (conda install 명령어)  
